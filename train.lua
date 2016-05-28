@@ -24,7 +24,7 @@ end
 
 -- Data
 print("-- Loading dataset")
-dataset = neuralconvo.DataSet(neuralconvo.CornellMovieDialogs("data/cornell_movie_dialogs"),
+dataset = neuralconvo.DataSet(neuralconvo.springChatAllChannels("data/spring_chat_all_channels"),
                     {
                       loadFirst = options.dataset,
                       minWordFreq = options.minWordFreq
