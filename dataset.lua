@@ -15,14 +15,13 @@ local xlua = require "xlua"
 local tokenizer = require "tokenizer"
 local list = require "pl.List"
 
---Constructur- he recives the loaded conversation in a loader
 function DataSet:__init(loader, options)
   options = options or {}
 
   self.examplesFilename = "data/examples.t7"
 
-  -- Discard words with lower frequency then this
-  self.minWordFreq = options.minWordFreq or 1
+  -- Reject words once vocab size reaches this threshold
+  self.maxVocabSize = options.maxVocabSize or 0
 
   -- Maximum number of words in an example sentence
   self.maxExampleLen = options.maxExampleLen or 25
@@ -38,7 +37,6 @@ function DataSet:__init(loader, options)
   self:load(loader)
 end
 
---here the conversation, if not allready extracted is loaded and stored
 function DataSet:load(loader)
   local filename = "data/vocab.t7"
 
@@ -52,11 +50,9 @@ function DataSet:load(loader)
     self.eosToken = data.eosToken
     self.unknownToken = data.unknownToken
     self.examplesCount = data.examplesCount
-  else --new Conversation, we dont have a vocabulary yet
+  else
     print("" .. filename .. " not found")
-
     self:visit(loader:load())
-    
     print("Writing " .. filename .. " ...")
     torch.save(filename, {
       word2id = self.word2id,
@@ -70,12 +66,7 @@ function DataSet:load(loader)
   end
 end
 
--- Gets a Conversation Table form the Loader
 function DataSet:visit(conversations)
-
-  --assertConversations(conversations)
-  -- Table for keeping track of word frequency
-  self.wordFreq = {}
   self.examples = {}
 
   -- Add magic tokens
@@ -87,18 +78,8 @@ function DataSet:visit(conversations)
 
   local total = self.loadFirst or #conversations * 2
 
-  print("Number of Conversations "..#conversations)
-
   for i, conversation in ipairs(conversations) do
-
-    if i > total then 
-      print("Number of Conversations ".. i .." > "..total.. " Aborting.")
-      break 
-    end
-    --process the Conversations Datas
-
-
-
+    if i > total then break end
     self:visitConversation(conversation)
     xlua.progress(i, total)
   end
@@ -109,16 +90,14 @@ function DataSet:visit(conversations)
     self:visitConversation(conversation, 2)
     xlua.progress(#conversations + i, total)
   end
-
-  print("-- Removing low frequency words")
-
-  for i, datum in ipairs(self.examples) do
-    self:removeLowFreqWords(datum[1])
-    self:removeLowFreqWords(datum[2])
-    xlua.progress(i, #self.examples)
+  
+  print("-- Shuffling ")
+  newIdxs = torch.randperm(#self.examples)
+  local sExamples = {}
+  for i, sample in ipairs(self.examples) do
+    sExamples[i] = self.examples[newIdxs[i]]
   end
-
-  self.wordFreq = nil
+  self.examples = sExamples
 
   self.examplesCount = #self.examples
   self:writeExamplesToFile()
@@ -149,7 +128,8 @@ function DataSet:batches(size)
       return
     end
 
-    local examples = {}
+    local inputSeqs,targetSeqs = {},{}
+    local maxInputSeqLen,maxTargetOutputSeqLen = 0,0
 
     for i = 1, size do
       local example = file:readObject()
@@ -158,33 +138,65 @@ function DataSet:batches(size)
         file:close()
         return examples
       end
-      table.insert(examples, example)
+      inputSeq,targetSeq = unpack(example)
+      if inputSeq:size(1) > maxInputSeqLen then
+        maxInputSeqLen = inputSeq:size(1)
+      end
+      if targetSeq:size(1) > maxTargetOutputSeqLen then
+        maxTargetOutputSeqLen = targetSeq:size(1)
+      end
+      table.insert(inputSeqs, inputSeq)
+      table.insert(targetSeqs, targetSeq)
+    end
+    
+    local encoderInputs,decoderInputs,decoderTargets = nil,nil,nil
+    if size == 1 then
+      encoderInputs = torch.IntTensor(maxInputSeqLen):fill(0)
+      decoderInputs = torch.IntTensor(maxTargetOutputSeqLen-1):fill(0)
+      decoderTargets = torch.IntTensor(maxTargetOutputSeqLen-1):fill(0)
+    else
+      encoderInputs = torch.IntTensor(maxInputSeqLen,size):fill(0)
+      decoderInputs = torch.IntTensor(maxTargetOutputSeqLen-1,size):fill(0)
+      decoderTargets = torch.IntTensor(maxTargetOutputSeqLen-1,size):fill(0)
+    end
+    
+    for samplenb = 1, #inputSeqs do
+      for word = 1,inputSeqs[samplenb]:size(1) do
+        eosOffset = maxInputSeqLen - inputSeqs[samplenb]:size(1) -- for left padding
+        if size == 1 then
+          encoderInputs[word] = inputSeqs[samplenb][word]
+        else
+          encoderInputs[word+eosOffset][samplenb] = inputSeqs[samplenb][word]
+        end
+      end
+    end
+    
+    for samplenb = 1, #targetSeqs do
+      trimmedEosToken = targetSeqs[samplenb]:sub(1,-2)
+      for word = 1, trimmedEosToken:size(1) do
+        if size == 1 then
+          decoderInputs[word] = trimmedEosToken[word]
+        else
+          decoderInputs[word][samplenb] = trimmedEosToken[word]
+        end
+      end
+    end
+    
+    for samplenb = 1, #targetSeqs do
+      trimmedGoToken = targetSeqs[samplenb]:sub(2,-1)
+      for word = 1, trimmedGoToken:size(1) do
+        if size == 1 then
+          decoderTargets[word] = trimmedGoToken[word]
+        else
+          decoderTargets[word][samplenb] = trimmedGoToken[word]
+        end
+      end
     end
 
-    return examples
+    return encoderInputs,decoderInputs,decoderTargets
   end
 end
 
-function DataSet:removeLowFreqWords(input)
-  for i = 1, input:size(1) do
-    local id = input[i]
-    local word = self.id2word[id]
-
-    if word == nil then
-      -- Already removed
-      input[i] = self.unknownToken
-
-    elseif self.wordFreq[word] < self.minWordFreq then
-      input[i] = self.unknownToken
-      
-      self.word2id[word] = nil
-      self.id2word[id] = nil
-      self.wordsCount = self.wordsCount - 1
-    end
-  end
-end
-
--- Explore the Conversation, gets the lines and a starting point
 function DataSet:visitConversation(lines, start)
   start = start or 1
 
@@ -193,8 +205,6 @@ function DataSet:visitConversation(lines, start)
     local target = lines[i+1]
 
     if target then
-
-      -- visit the conversation, and 
       local inputIds = self:visitText(input.text)
       local targetIds = self:visitText(target.text, 2)
 
@@ -211,20 +221,18 @@ function DataSet:visitConversation(lines, start)
   end
 end
 
---retuns the TextID
 function DataSet:visitText(text, additionalTokens)
   local words = {}
   additionalTokens = additionalTokens or 0
 
-  if not text or text == "" then
+  if text == "" then
     return
   end
 
   for t, word in tokenizer.tokenize(text) do
-
     table.insert(words, self:makeWordId(word))
     -- Only keep the first sentence
-    if #words >= self.maxExampleLen - additionalTokens then 
+    if t == "endpunct" or #words >= self.maxExampleLen - additionalTokens then
       break
     end
   end
@@ -237,42 +245,21 @@ function DataSet:visitText(text, additionalTokens)
 end
 
 function DataSet:makeWordId(word)
+  if self.maxVocabSize > 0 and self.wordsCount >= self.maxVocabSize then
+    -- We've reached the maximum size for the vocab. Replace w/ unknown token
+    return self.unknownToken
+  end
+
   word = word:lower()
- -- print("Found Word:"..word)
+
   local id = self.word2id[word]
 
-  if id then
-    self.wordFreq[word] = self.wordFreq[word] + 1
-  else
+  if not id then
     self.wordsCount = self.wordsCount + 1
     id = self.wordsCount
     self.id2word[id] = word
     self.word2id[word] = id
-    self.wordFreq[word] = 1
   end
 
   return id
 end
-
-function strOff(char, size)
-conCatString=""
-for i=1,size do
-conCatString=conCatString..char
-
-end
-return conCatString
-end
-
-function assertConversations(tables)
-
-
-  for i=1, #tables do
-    local element= tables[i]
-
-    for k=1, #element do
-      assert(type(element[k])=="string")
-    end
-
-
-  end
- end

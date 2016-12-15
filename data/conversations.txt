@@ -1,0 +1,93 @@
+return {
+-- Table: {1}
+{
+   {2},
+   {3},
+   {4},
+   {5},
+   {6},
+   {7},
+   {8},
+   {9},
+   {10},
+   {11},
+   {12},
+},
+-- Table: {2}
+{
+   ["lineID"]=1,
+   ["text"]=" spring/develop 9e18509 jK: PlayAsync(): don't reuse the soundsource when there is a sounditem waiting",
+   ["character"]="github",
+   ["character2ID"]="Annonymous",
+},
+-- Table: {3}
+{
+   ["lineID"]=2,
+   ["text"]=" spring/develop 3615378 jK: improve L2 cache hit of CTriNodePool::ResetAll()",
+   ["character"]="github",
+   ["character2ID"]="",
+},
+-- Table: {4}
+{
+   ["lineID"]=3,
+   ["text"]=" [spring] jk3064 pushed 2 new commits to develop: http://git.io/AEY4",
+   ["character"]="github",
+   ["character2ID"]="",
+},
+-- Table: {5}
+{
+   ["lineID"]=4,
+   ["text"]=" will openal explode if i use it from ZKL at the same time spring uses it? Does anyone know?",
+   ["character"]="Licho",
+   ["character2ID"]="",
+},
+-- Table: {6}
+{
+   ["lineID"]=5,
+   ["text"]=" works fine",
+   ["character"]="[LCC]jK",
+   ["character2ID"]="github",
+},
+-- Table: {7}
+{
+   ["lineID"]=6,
+   ["text"]=" it's not daemon, it's a wrapper lib",
+   ["character"]="BrainDamage",
+   ["character2ID"]="Licho",
+},
+-- Table: {8}
+{
+   ["lineID"]=7,
+   ["text"]=" and SL uses it too",
+   ["character"]="BrainDamage",
+   ["character2ID"]="[LCC]jK",
+},
+-- Table: {9}
+{
+   ["lineID"]=8,
+   ["text"]=" [spring] jk3064 pushed 1 new commit to develop: http://git.io/AEBG",
+   ["character"]="github",
+   ["character2ID"]="[LCC]jK",
+},
+-- Table: {10}
+{
+   ["lineID"]=9,
+   ["text"]=" spring/develop 6a4e5f1 jK: StartScript: allow rapid tags in gametype field...",
+   ["character"]="github",
+   ["character2ID"]="BrainDamage",
+},
+-- Table: {11}
+{
+   ["lineID"]=10,
+   ["text"]=" build #4532 of validationtests is complete: Failure [\0034failed validation test validation test_1 validation test_2 validation test_3 validation test_4 validation test_5 validation test_6\3]  Build details are at http://buildbot.springrts.com/builders/validationtests/builds/4532  blamelist: jK <-jk->",
+   ["character"]="MrBuild",
+   ["character2ID"]="BrainDamage",
+},
+-- Table: {12}
+{
+   ["lineID"]=11,
+   ["text"]=" [spring] abma pushed 1 new commit to develop: http://git.io/AEEE",
+   ["character"]="github",
+   ["character2ID"]="github",
+},
+}
