@@ -13,7 +13,7 @@ if dataset == nil then
   options = cmd:parse(arg)
 
   -- Data
-  dataset = neuralconvo.DataSet()
+  dataset = neuralconvo.DataSet(neuralconvo.springChatAllChannels("data/spring_chat_all_channels"))
 
   -- Enabled CUDA
   if options.cuda then

@@ -1,6 +1,7 @@
 local Parser = torch.class("neuralconvo.MovieScriptParser")
 
 function Parser:parse(file)
+  print("MovieScriptParser activated")
   local f = assert(io.open(file, 'r'))
   self.input = f:read("*all")
   f:close()

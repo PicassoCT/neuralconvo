@@ -2,6 +2,14 @@
 	local stringx = require "pl.stringx"
 	local xlua = require "xlua"
 
+	charackterBlackList={
+						["github"]=true,
+
+
+
+						}
+
+
 	function trim(s)
 		if not s then return end
 		return s:match'^()%s*$' and '' or s:match'^%s*(.*%S)'
@@ -12,85 +20,108 @@
 
 	local function extractMetaLineFromLog(file)
 		local f = assert(io.open(file, 'r'))
+		local  Conversations={}
+		local Lines={}
 
-		 Lines={}
-		LineNr=1
+		ConversationID=1
+
+
 		Sstart, Send=0,0
-		
+		prevCharacter=""
+		lastFoundDiffrentCharacter="Annonymous"
+
+
 		for line in f:lines() do
-		
+
 			Sstart=string.find(line,"<")
 			Send =string.find(line,">")
-			Lines[LineNr]={}
-			
-			if  Sstart and Send then 
-				Lines[LineNr].boolValidLine=true
-				character= trim(string.sub(line,Sstart,Send))
-				character2ID = "anyone"
+
+
+			if  Sstart and Send then
+				Lines[#Lines +1]=	{
+									character="empty",
+									character2ID = "empty",
+									text = "",
+									lineID= #Lines,
+									boolValidLine= false
+									}
+
+	
+				character= trim(string.sub(line,Sstart+1,Send-1))
+				character2ID = lastFoundDiffrentCharacter
+
 				
-				
-				if character == "<Nightwatch>" then 
+				if character == "Nightwatch" then
 					character= nil
 					Sstart, Send= string.find(line,"<Nightwatch>")
-					line= string.sub(line,string.len(line))
-					
+					line= string.sub(line,Send+1, string.len(line))
+
 					Sstart, Send= string.find(line,"<"),string.find(line,">")
 					if Sstart and Send then
-						character= trim(string.sub(line,Sstart,Send))
+						character= trim(string.sub(line,Sstart+1,Send-1))
+
 					end
 				end
-			
-				if character then
-					--remove the braces	
-					character=string.upper(trim(string.sub(character,2,string.len(character)-1)))
-					
-					if not AllCharacters[character] then 
-						print("New Person:"..character)
-						AllCharacters[character]= character 
+
+				if character and character ~= ""  then
+					--remove the braces
+				
+					if  AllCharacters[character] == nil then
+						--print("New Person:"..character)
+						AllCharacters[character]= character
 					end
-					
-					local searchString=string.sub(line,Send+1,string.len(line)-(Send+1))
+
+					searchString=string.sub(line,Send+1,string.len(line))
 
 					for dramatispersona,_ in pairs(AllCharacters) do
 						if string.lower(dramatispersona) ~= string.lower(character) then
 							if string.find(searchString,dramatispersona) then
-								character2ID= string.upper(dramatispersona)		
+								character2ID= string.upper(dramatispersona)
 							end
 						end
-						
+
 					end
-					
-					
-						Lines[LineNr]= {		
-							characterID=character, 
+
+						Lines[#Lines]= {
+							character=character,
 							character2ID = character2ID,
 							text = searchString,
-							lineID= LineNr
+							lineID= #Lines,
+							boolValidLine= true
 						}
-					
-						if Lines[LineNr].character2ID =="anyone" then
-						
-							if Lines[LineNr-1] and Lines[LineNr-1].characterID	then	
-							Lines[LineNr].character2ID = Lines[LineNr-1].characterID
-							else
-							Lines[LineNr].character2ID=Lines[LineNr].characterID
-							end
+
+						if prevCharacter ~= lastFoundDiffrentCharacter and
+							prevCharacter ~= character then
+							lastFoundDiffrentCharacter= prevCharacter
 						end
+
+						if prevCharacter ~= character then
+							prevCharacter = character
+						end
+
 				end
-				 	
-			end 
-		
-			if not Sstart or not Ssend then
-				Lines[LineNr].boolValidLine=false	
+
 			end
-			
-				
-		LineNr=LineNr+1
-		end 
-		f:close() 
-		
-		return Lines
-		
+
+			if  string.find(line, "***") ~= nil and #Lines > 0 then
+				local Conversation={}
+					for i=1, #Lines do
+						if Lines[i].boolValidLine == true then
+							table.insert(Conversation,Lines[i])
+						end
+					end
+
+				table.insert(Conversations,Conversation)
+
+				Lines={}
+				ConversationID=ConversationID+1
+			end
+		end
+
+		f:close()
+	--	rEchoT(Lines,0)
+		return Conversations
+
 	end
 
 	function springChatAllChannels:__init(dir)
@@ -107,37 +138,105 @@
 	end
 
 	function springChatAllChannels:load()
-		local lines = {}
-		local conversations = {}
-		local count = 0
-		
+
+		 conversations = {}
+
+
 		print("-- Parsing Chat Dialog data set ...")
 		path= self.dir .. "/dataset.txt"
 		print(path)
-		
-		lines =extractMetaLineFromLog(path)
-		
-		local conversation = {}
-		lineAddedCounter=0
-		conversationID=0
-		
-		for index, line in ipairs(lines) do
-			if line.boolValidLine == false  and lineAddedCounter > 0 then
-				conversation.conversationID=conversationID
-				table.insert(conversations, conversation)
-				conversation = {}
-				conversationID=conversationID+1
-				lineAddedCounter= 0
-			end
-			
-			
-			table.insert(conversation, line)	
-			lineAddedCounter=lineAddedCounter+1
-			count = count + 1
-			progress(count)
-		end
-		
-		xlua.progress(TOTAL_LINES, TOTAL_LINES)
-		
+
+		conversations =extractMetaLineFromLog(path)
+
+		print("Writing Conversation Data Table to file")
+		--for i=1, #conversations do
+			tablesave(conversations[1], "data/conversations.txt")
+		--end
+
+
 		return conversations
 	end
+
+   function exportstring( s )
+      return string.format("%q", s)
+   end
+
+ function tablesave(  tbl,filename )
+       charS,charE = "   ","\n"
+       file,err = io.open( filename, "wb" )
+      if err then return err end
+
+      -- initiate variables for save procedure
+      local tables,lookup = { tbl },{ [tbl] = 1 }
+      file:write( "return {"..charE )
+
+      for idx,t in ipairs( tables ) do
+         file:write( "-- Table: {"..idx.."}"..charE )
+         file:write( "{"..charE )
+          thandled = {}
+
+         for i,v in ipairs( t ) do
+            thandled[i] = true
+            local stype = type( v )
+            -- only handle value
+            if stype == "table" then
+               if not lookup[v] then
+                  table.insert( tables, v )
+                  lookup[v] = #tables
+               end
+               file:write( charS.."{"..lookup[v].."},"..charE )
+            elseif stype == "string" then
+               file:write(  charS..exportstring( v )..","..charE )
+            elseif stype == "number" then
+               file:write(  charS..tostring( v )..","..charE )
+            end
+         end
+
+         for i,v in pairs( t ) do
+            -- escape handled values
+            if (not thandled[i]) then
+
+               local str = ""
+               local stype = type( i )
+               -- handle index
+               if stype == "table" then
+                  if not lookup[i] then
+                     table.insert( tables,i )
+                     lookup[i] = #tables
+                  end
+                  str = charS.."[{"..lookup[i].."}]="
+               elseif stype == "string" then
+                  str = charS.."["..exportstring( i ).."]="
+               elseif stype == "number" then
+                  str = charS.."["..tostring( i ).."]="
+               end
+
+               if str ~= "" then
+                  stype = type( v )
+                  -- handle value
+                  if stype == "table" then
+                     if not lookup[v] then
+                        table.insert( tables,v )
+                        lookup[v] = #tables
+                     end
+                     file:write( str.."{"..lookup[v].."},"..charE )
+                  elseif stype == "string" then
+                     file:write( str..exportstring( v )..","..charE )
+                  elseif stype == "number" then
+                     file:write( str..tostring( v )..","..charE )
+                  end
+               end
+            end
+         end
+         file:write( "},"..charE )
+      end
+      file:write( "}" )
+      file:close()
+   end
+
+function stringOfLength(char,length)
+	strings=""
+	for i=1,length do strings=strings..char end
+	return strings
+end
+

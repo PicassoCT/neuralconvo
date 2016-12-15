@@ -15,6 +15,7 @@ local xlua = require "xlua"
 local tokenizer = require "tokenizer"
 local list = require "pl.List"
 
+--Constructur- he recives the loaded conversation in a loader
 function DataSet:__init(loader, options)
   options = options or {}
 
@@ -37,6 +38,7 @@ function DataSet:__init(loader, options)
   self:load(loader)
 end
 
+--here the conversation, if not allready extracted is loaded and stored
 function DataSet:load(loader)
   local filename = "data/vocab.t7"
 
@@ -50,9 +52,11 @@ function DataSet:load(loader)
     self.eosToken = data.eosToken
     self.unknownToken = data.unknownToken
     self.examplesCount = data.examplesCount
-  else
+  else --new Conversation, we dont have a vocabulary yet
     print("" .. filename .. " not found")
+
     self:visit(loader:load())
+    
     print("Writing " .. filename .. " ...")
     torch.save(filename, {
       word2id = self.word2id,
@@ -66,7 +70,10 @@ function DataSet:load(loader)
   end
 end
 
+-- Gets a Conversation Table form the Loader
 function DataSet:visit(conversations)
+
+  --assertConversations(conversations)
   -- Table for keeping track of word frequency
   self.wordFreq = {}
   self.examples = {}
@@ -80,8 +87,18 @@ function DataSet:visit(conversations)
 
   local total = self.loadFirst or #conversations * 2
 
+  print("Number of Conversations "..#conversations)
+
   for i, conversation in ipairs(conversations) do
-    if i > total then break end
+
+    if i > total then 
+      print("Number of Conversations ".. i .." > "..total.. " Aborting.")
+      break 
+    end
+    --process the Conversations Datas
+
+
+
     self:visitConversation(conversation)
     xlua.progress(i, total)
   end
@@ -167,6 +184,7 @@ function DataSet:removeLowFreqWords(input)
   end
 end
 
+-- Explore the Conversation, gets the lines and a starting point
 function DataSet:visitConversation(lines, start)
   start = start or 1
 
@@ -175,6 +193,8 @@ function DataSet:visitConversation(lines, start)
     local target = lines[i+1]
 
     if target then
+
+      -- visit the conversation, and 
       local inputIds = self:visitText(input.text)
       local targetIds = self:visitText(target.text, 2)
 
@@ -191,18 +211,20 @@ function DataSet:visitConversation(lines, start)
   end
 end
 
+--retuns the TextID
 function DataSet:visitText(text, additionalTokens)
   local words = {}
   additionalTokens = additionalTokens or 0
 
-  if text == "" then
+  if not text or text == "" then
     return
   end
 
   for t, word in tokenizer.tokenize(text) do
+
     table.insert(words, self:makeWordId(word))
     -- Only keep the first sentence
-    if t == "endpunct" or #words >= self.maxExampleLen - additionalTokens then
+    if #words >= self.maxExampleLen - additionalTokens then 
       break
     end
   end
@@ -216,7 +238,7 @@ end
 
 function DataSet:makeWordId(word)
   word = word:lower()
-
+ -- print("Found Word:"..word)
   local id = self.word2id[word]
 
   if id then
@@ -231,3 +253,26 @@ function DataSet:makeWordId(word)
 
   return id
 end
+
+function strOff(char, size)
+conCatString=""
+for i=1,size do
+conCatString=conCatString..char
+
+end
+return conCatString
+end
+
+function assertConversations(tables)
+
+
+  for i=1, #tables do
+    local element= tables[i]
+
+    for k=1, #element do
+      assert(type(element[k])=="string")
+    end
+
+
+  end
+ end
