@@ -1,0 +1,127 @@
+*** February 21, 2015 at 2:15:23 PM PST
+[2:15:23 PM] <Nightwatch> <github> spring/develop 9e18509 jK: PlayAsync(): don't reuse the soundsource when there is a sounditem waiting
+[2:15:23 PM] <Nightwatch> <github> spring/develop 3615378 jK: improve L2 cache hit of CTriNodePool::ResetAll()
+[2:15:23 PM] <Nightwatch> <github> [spring] jk3064 pushed 2 new commits to develop: http://git.io/AEY4
+Link expanded from <Nightwatch> <github>http://git.io/AEY4
+redirected
+
+https://git.io/AEY4
+
+a
+
+[2:49:28 PM] <Licho> will openal explode if i use it from ZKL at the same time spring uses it? Does anyone know?
+[2:55:19 PM] <Nightwatch> <[LCC]jK> works fine
+[2:55:23 PM] <Nightwatch> <BrainDamage> it's not daemon, it's a wrapper lib
+[2:55:27 PM] <Nightwatch> <BrainDamage> and SL uses it too
+[3:01:53 PM] <Nightwatch> <github> [spring] jk3064 pushed 1 new commit to develop: http://git.io/AEBG
+Link expanded from <Nightwatch> <github>http://git.io/AEBG
+redirected
+
+https://git.io/AEBG
+
+a
+
+[3:01:53 PM] <Nightwatch> <github> spring/develop 6a4e5f1 jK: StartScript: allow rapid tags in gametype field...
+[3:13:50 PM] <Nightwatch> <MrBuild> build #4532 of validationtests is complete: Failure [4failed validation test validation test_1 validation test_2 validation test_3 validation test_4 validation test_5 validation test_6]  Build details are at http://buildbot.springrts.com/builders/validationtests/builds/4532  blamelist: jK <-jk->
+Link expanded from <Nightwatch> <MrBuild> build #4532 of validationtests is complete: Failure [4failed validation test validation test_1 validation test_2 validation test_3 validation test_4 validation test_5 validation test_6]  Build details are at http://buildbot.springrts.com/builders/validationtests/builds/4532  blamelist: jK <-jk->http://buildbot.springrts.com/builders/validationtests/builds/4532
+No Such Resource
+
+h1
+
+No such child resource.
+
+p
+
+[3:18:22 PM] <Nightwatch> <github> [spring] abma pushed 1 new commit to develop: http://git.io/AEEE
+Link expanded from <Nightwatch> <github>http://git.io/AEEE
+redirected
+
+https://git.io/AEEE
+
+a
+
+*** February 22, 2015 at 10:48:04 AM PST
+[10:48:04 AM] <Nightwatch> <Floris> advancedmodelshading is buggy here with reflections
+[10:48:49 AM] <Nightwatch> <[Fx]Bluestone> mantis
+[10:49:14 AM] <Nightwatch> <Floris> uploading a recording to youtube 
+[10:53:06 AM] <Nightwatch> <Floris> what gfx settings are costy for the cpu?
+[10:53:29 AM] <Nightwatch> <Floris> shadows are one, but already wrote a shadow quality manager widget for that
+[10:53:44 AM] <Nightwatch> <Floris> might aswell find other settings i can deactivate at low fps
+[11:21:41 AM] <Nightwatch> <[PRO]Jools> water can be depending on gpu
+[11:21:50 AM] <Nightwatch> <[PRO]Jools> deferred rendering
+[11:21:55 AM] <Nightwatch> <[PRO]Jools> projectile lights
+[11:33:29 AM] <Nightwatch> <ThinkSome> Floris or you could play with low and then replay at ultra and record
+[11:34:23 AM] <Nightwatch> <Floris> eh wut
+*** February 22, 2015 at 7:42:44 PM PST
+[7:42:44 PM] <Nightwatch> <[Evo]Forboding_Angel> Wow, server download speed is sucking atm
+[7:42:52 PM] <Nightwatch> <[Evo]Forboding_Angel> [LCC]jK
+[7:42:57 PM] <Nightwatch> <[Evo]Forboding_Angel> I've always wondered this...
+[7:43:44 PM] <Nightwatch> <[Evo]Forboding_Angel> Since git is so pervasive, and has versioning... WHy do we need rapid? Why don't we set up a system of some sort where the lobbies simply grab the game files from git?
+[3:36:24 PM] <Nightwatch> <MrBuild> build #4533 of validationtests is complete: Warnings [8warnings validation test_1]  Build details are at http://buildbot.springrts.com/builders/validationtests/builds/4533  blamelist: abma <spring@abma.de>
+Link expanded from <Nightwatch> <MrBuild> build #4533 of validationtests is complete: Warnings [8warnings validation test_1]  Build details are at http://buildbot.springrts.com/builders/validationtests/builds/4533  blamelist: abma <spring@abma.de>http://buildbot.springrts.com/builders/validationtests/builds/4533
+No Such Resource
+
+h1
+
+No such child resource.
+
+p
+
+[8:05:34 PM] <Nightwatch> <[LCC]jK> git is the history
+[8:05:38 PM] <Nightwatch> <[Evo]Forboding_Angel> Ahh ok
+[8:06:14 PM] <Nightwatch> <[Evo]Forboding_Angel> Just checked my .git folder for evo
+[8:06:15 PM] <Nightwatch> <[Evo]Forboding_Angel> 1gb
+[8:06:22 PM] <Nightwatch> <[Evo]Forboding_Angel> But I do have multiple branches too
+[8:06:22 PM] <Nightwatch> <hokomoko> you could use github's api but it would be ugly
+[8:07:48 PM] <Nightwatch> <gajop> well.. it is possible to dump history though
+[8:08:40 PM] <Nightwatch> <[LCC]jK> after you cloned it
+[8:08:52 PM] <Nightwatch> <gajop> this is not something a developed project should do, but it's not as insane as it sounds (opening up a project to the public would make it OK to dump history imo)
+[8:12:29 PM] <Nightwatch> <GargantuaSauce> github also has a specific limit of 100MB per file
+[8:20:26 PM] <ikinz> You can make a shallow clone of course, but you'll have other problems like you can't have separate versions side by side without doing separate checkouts, even if you hardlink them it's a mess. And if you go all the way and teach spring to read blobs from .git dir, you've basically reinvented rapid using ugly hacks.
+[7:44:19 PM] <Nightwatch> <[Evo]Forboding_Angel> I could understand not doing it that way with svn, cause svn craps all over the place, but git doesn't
+[7:44:47 PM] <Nightwatch> <[Evo]Forboding_Angel> And iirc, the games using svn atm still get pulled into the spring server into a git repo anyway
+[7:45:07 PM] <Nightwatch> <[Evo]Forboding_Angel> My point was though that instead of using the spring server resources for game downloading
+[7:45:28 PM] <Nightwatch> <[Evo]Forboding_Angel> all that load could be put squarely upon wherever the git repo is hosting (usually github)
+[7:54:59 PM] <Nightwatch> <[LCC]jK> cause git repos are multiple GBs large
+[7:59:42 PM] <Nightwatch> <[Evo]Forboding_Angel> Certainly not jsut the head revision
+[7:59:56 PM] <Nightwatch> <[Evo]Forboding_Angel> You wouldn't need to grab all the history
+[8:00:31 PM] <Nightwatch> <[Evo]Forboding_Angel> Or is that simply what would happen as a result of it being updated over time I guess?
+[8:01:01 PM] <Nightwatch> <[Evo]Forboding_Angel> Wouldn't it be simple enough to periodically dump the history (assuming that the suer wanted that)?
+[8:05:08 PM] <Nightwatch> <GargantuaSauce> it actually baffles me that you're unaware of the reason why git is unsuitable for distributing large binaries
+[8:05:10 PM] <Nightwatch> <[LCC]jK> [Evo]Forboding_Angel: You wouldn't need to grab all the history > seems you don;t understand git
+[7:48:28 AM] <Nightwatch> <bluestone_irc> looks good, thanks :)
+[7:50:42 AM] <Nightwatch> <detrino> bluestone_irc, http://goo.gl/km2hf5
+Link expanded from <Nightwatch> <detrino>http://goo.gl/km2hf5
+[7:50:45 AM] <Nightwatch> <detrino> still no copying
+[7:51:56 AM] <Nightwatch> <bluestone_irc> yeah
+[7:52:15 AM] <Nightwatch> <detrino> as long as MakeData is inlined you are good
+[7:53:07 AM] <Nightwatch> <detrino> and the compiler will always inline it if it is static or in an anonymous namespace and only called once
+[7:53:50 AM] <Nightwatch> <bluestone_irc> yeah thats a very neat solution
+[7:54:49 AM] <Nightwatch> <detrino> actually
+[7:54:55 AM] <Nightwatch> <detrino> the inlining isnt even neccesary
+[7:55:00 AM] <Nightwatch> <detrino> just NRVO alone handles this
+[7:55:12 AM] <Nightwatch> <detrino> http://goo.gl/in2O7x
+Link expanded from <Nightwatch> <detrino>http://goo.gl/in2O7x
+*** February 23, 2015 at 3:02:22 AM PST
+[3:02:22 AM] <Nightwatch> <[S44]Nemo> certainly super rare
+[3:02:25 AM] <Nightwatch> <[S44]Nemo> *not super rare
+[3:02:40 AM] <Nightwatch> <[LCC]jK> 4.  what happens in china stays in china (except their products of course)
+[3:08:11 AM] <Nightwatch> <Picassorieusly> lets say it thus, you can work with vim 
+[3:08:42 AM] <Nightwatch> <Picassorieusly> but the levle of entrance is expensive- and thus you deny a lot of clever people who would have otherwise be able to contribute access to your project
+[9:58:12 PM] <Nightwatch> <github> [spring] jk3064 pushed 1 new commit to develop: http://git.io/AuB0
+Link expanded from <Nightwatch> <github>http://git.io/AuB0
+redirected
+
+https://git.io/AuB0
+
+a
+
+[9:58:12 PM] <Nightwatch> <github> spring/develop 85b82e2 jK: fix #4683 #4684 : make NamedTextures threadsafe
+[2:37:35 AM] <Nightwatch> <Picassorieusly> Say watched one more time, memoryfucker!
+[2:37:43 AM] <Nightwatch> <Picassorieusly> ;)
+[2:37:45 AM] <Nightwatch> <Picassorieusly> but yes
+[2:38:14 AM] <Nightwatch> <[LCC]jK> numMoveDefs == 0?
+[2:41:16 AM] <Nightwatch> <gajop> [LCC]jK: maybe because i'm working on ingamelobby that has no units?
+[2:42:32 AM] <Nightwatch> <[LCC]jK> you have commit access
+[2:42:51 AM] <Nightwatch> <[LCC]jK> you can either commit assert() + LOG(), or you can fix the codes ;)
+[2:43:28 AM] <Nightwatch> <gajop> oh this thing caused it i guess: https://github.com/spring/spring/commit/1a4536af13304b15505a4b07389bf225be64add7
