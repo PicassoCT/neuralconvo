@@ -1,3 +1,11 @@
+# F.A.Q. Chatbot generated from IRC Channel logs
+Hi, this a NN-Chatbot trained from the Spring #Moddev channels data. 
+It is weighted to detect questions and will be weighted to give the most correct answer.
+Correct Answer Criteria is:
+- Answer refered to most by Last Answer
+- Last Answer in Conversation.
+- Length of Answer
+
 # Neural Conversational Model in Torch
 
 This is an attempt at implementing [Sequence to Sequence Learning with Neural Networks (seq2seq)](http://arxiv.org/abs/1409.3215) and reproducing the results in [A Neural Conversational Model](http://arxiv.org/abs/1506.05869) (aka the Google chatbot).
